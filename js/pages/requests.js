@@ -1,4 +1,79 @@
-// pages/requests.js - صفحة تقديم الطلبات
+// pages/requests.js - صفحة تقديم الطلبات مع المساعد الذكي
+
+// بيانات المساعد الذكي
+const SmartAssistantData = {
+    isActive: false,
+    currentQuestion: 0,
+    answers: {},
+    questions: [
+        {
+            id: 'problem_type',
+            question: 'ما هي طبيعة المشكلة التي تواجهها؟',
+            icon: '🤔',
+            options: [
+                { value: 'decision', label: 'صدر قرار إداري ضدي', icon: '📋' },
+                { value: 'employment', label: 'مشكلة وظيفية (ترقية، راتب، فصل)', icon: '💼' },
+                { value: 'contract', label: 'خلاف على عقد مع جهة حكومية', icon: '📝' },
+                { value: 'compensation', label: 'أطالب بتعويض من جهة حكومية', icon: '💰' },
+                { value: 'service', label: 'حُرمت من خدمة أو رخصة', icon: '🚫' },
+                { value: 'disciplinary', label: 'صدر بحقي جزاء تأديبي', icon: '⚠️' }
+            ]
+        },
+        {
+            id: 'entity_type',
+            question: 'ما هي الجهة التي لديك مشكلة معها؟',
+            icon: '🏛️',
+            options: [
+                { value: 'ministry', label: 'وزارة', icon: '🏢' },
+                { value: 'municipality', label: 'أمانة أو بلدية', icon: '🏙️' },
+                { value: 'university', label: 'جامعة أو مؤسسة تعليمية', icon: '🎓' },
+                { value: 'hospital', label: 'مستشفى أو جهة صحية حكومية', icon: '🏥' },
+                { value: 'security', label: 'جهة أمنية', icon: '🛡️' },
+                { value: 'other_gov', label: 'جهة حكومية أخرى', icon: '🏛️' }
+            ]
+        },
+        {
+            id: 'time_passed',
+            question: 'متى حدثت المشكلة أو صدر القرار؟',
+            icon: '📅',
+            options: [
+                { value: 'recent', label: 'خلال آخر 60 يوماً', icon: '✅' },
+                { value: 'months', label: 'من 60 يوم إلى 6 أشهر', icon: '⚠️' },
+                { value: 'long', label: 'أكثر من 6 أشهر', icon: '❌' }
+            ]
+        },
+        {
+            id: 'grievance_filed',
+            question: 'هل تقدمت بتظلم للجهة الإدارية؟',
+            icon: '📨',
+            options: [
+                { value: 'yes_responded', label: 'نعم، وتم الرد علي', icon: '📬' },
+                { value: 'yes_no_response', label: 'نعم، ولم يتم الرد خلال 60 يوماً', icon: '⏳' },
+                { value: 'no', label: 'لا، لم أتقدم بتظلم', icon: '❌' }
+            ]
+        },
+        {
+            id: 'request_type',
+            question: 'ماذا تريد من المحكمة؟',
+            icon: '⚖️',
+            options: [
+                { value: 'cancel', label: 'إلغاء القرار الصادر ضدي', icon: '🚫' },
+                { value: 'compensation', label: 'تعويض مالي عن الضرر', icon: '💵' },
+                { value: 'both', label: 'إلغاء القرار والتعويض معاً', icon: '📋💰' },
+                { value: 'enforce', label: 'إلزام الجهة بتنفيذ شيء معين', icon: '✅' }
+            ]
+        }
+    ],
+    caseTypeMapping: {
+        // تحديد نوع الدعوى بناءً على الإجابات
+        'decision': { primary: 1, name: 'إلغاء قرار إداري', icon: '📋' },
+        'employment': { primary: 2, name: 'دعوى وظيفية', icon: '💼' },
+        'contract': { primary: 3, name: 'عقود إدارية', icon: '📝' },
+        'compensation': { primary: 4, name: 'تعويضات', icon: '💰' },
+        'service': { primary: 1, name: 'إلغاء قرار إداري', icon: '📋' },
+        'disciplinary': { primary: 5, name: 'دعوى تأديبية', icon: '⚖️' }
+    }
+};
 
 function renderRequestsPage() {
     return `
@@ -9,8 +84,35 @@ function renderRequestsPage() {
             </div>
         </div>
         
+        <!-- اختيار طريقة تقديم الطلب -->
+        <div id="submission-method-selection" class="form-section">
+            <h3 class="section-title">
+                <div class="section-icon">🚀</div>
+                اختر طريقة تقديم الطلب
+            </h3>
+            <div class="submission-methods">
+                <div class="method-card" onclick="selectSubmissionMethod('smart')">
+                    <div class="method-icon">🤖</div>
+                    <h4 class="method-title">المساعد الذكي</h4>
+                    <p class="method-description">أجب على بعض الأسئلة البسيطة وسنساعدك في تحديد نوع الدعوى المناسبة وملء البيانات</p>
+                    <div class="method-badge recommended">موصى به</div>
+                </div>
+                <div class="method-card" onclick="selectSubmissionMethod('manual')">
+                    <div class="method-icon">📝</div>
+                    <h4 class="method-title">التقديم اليدوي</h4>
+                    <p class="method-description">قم بملء جميع البيانات والخطوات يدوياً إذا كنت تعرف نوع الدعوى المطلوبة</p>
+                    <div class="method-badge">للمتقدمين</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- واجهة المساعد الذكي -->
+        <div id="smart-assistant-container" style="display: none;">
+            ${renderSmartAssistant()}
+        </div>
+        
         <!-- خطوات المعالج - 5 خطوات -->
-        <div class="stepper" id="stepper">
+        <div class="stepper" id="stepper" style="display: none;">
             <div class="step active" data-step="1">
                 <div class="step-number">1</div>
                 <div class="step-label">بيانات الأطراف</div>
@@ -34,12 +136,12 @@ function renderRequestsPage() {
         </div>
         
         <!-- محتوى الخطوات -->
-        <div id="step-content">
+        <div id="step-content" style="display: none;">
             ${renderStep1()}
         </div>
         
         <!-- أزرار التنقل -->
-        <div class="form-section" style="display: flex; justify-content: space-between;" id="navigation-buttons">
+        <div class="form-section" style="display: none; justify-content: space-between;" id="navigation-buttons">
             <button class="btn btn-secondary" id="prev-btn" onclick="prevStep()" style="visibility: hidden;">
                 <span>→</span>
                 السابق
@@ -50,6 +152,364 @@ function renderRequestsPage() {
             </button>
         </div>
     `;
+}
+
+function renderSmartAssistant() {
+    return `
+        <div class="smart-assistant-wrapper">
+            <!-- رأس المساعد الذكي -->
+            <div class="assistant-header">
+                <div class="assistant-avatar">
+                    <div class="avatar-icon">🤖</div>
+                    <div class="avatar-pulse"></div>
+                </div>
+                <div class="assistant-info">
+                    <h3>المساعد الذكي</h3>
+                    <p>سأساعدك في تحديد نوع الدعوى المناسبة لحالتك</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="exitSmartAssistant()">
+                    <span>✕</span>
+                    إلغاء
+                </button>
+            </div>
+            
+            <!-- شريط التقدم -->
+            <div class="assistant-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="assistant-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="assistant-progress-text">السؤال 1 من ${SmartAssistantData.questions.length}</div>
+            </div>
+            
+            <!-- محتوى السؤال -->
+            <div id="assistant-question-container">
+                ${renderAssistantQuestion(0)}
+            </div>
+            
+            <!-- أزرار التنقل -->
+            <div class="assistant-navigation">
+                <button class="btn btn-secondary" id="assistant-prev-btn" onclick="prevAssistantQuestion()" style="visibility: hidden;">
+                    <span>→</span>
+                    السابق
+                </button>
+                <button class="btn btn-primary" id="assistant-next-btn" onclick="nextAssistantQuestion()" disabled>
+                    التالي
+                    <span>←</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function renderAssistantQuestion(questionIndex) {
+    const question = SmartAssistantData.questions[questionIndex];
+    const selectedAnswer = SmartAssistantData.answers[question.id];
+    
+    return `
+        <div class="assistant-question-card">
+            <div class="question-header">
+                <span class="question-icon">${question.icon}</span>
+                <h3 class="question-text">${question.question}</h3>
+            </div>
+            <div class="options-grid">
+                ${question.options.map(option => `
+                    <div class="option-card ${selectedAnswer === option.value ? 'selected' : ''}" 
+                         onclick="selectAssistantOption('${question.id}', '${option.value}')">
+                        <div class="option-icon">${option.icon}</div>
+                        <div class="option-label">${option.label}</div>
+                        <div class="option-check">✓</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function renderAssistantResult() {
+    const result = analyzeAnswers();
+    
+    return `
+        <div class="assistant-result-card">
+            <div class="result-header">
+                <div class="result-icon">🎯</div>
+                <h3>تحليل حالتك</h3>
+            </div>
+            
+            <div class="result-recommendation">
+                <div class="recommendation-badge">
+                    <span>${result.caseType.icon}</span>
+                    نوع الدعوى المقترح
+                </div>
+                <h2 class="recommendation-title">${result.caseType.name}</h2>
+                <p class="recommendation-description">${result.description}</p>
+            </div>
+            
+            ${result.warnings.length > 0 ? `
+                <div class="result-warnings">
+                    <h4>⚠️ تنبيهات مهمة</h4>
+                    <ul>
+                        ${result.warnings.map(w => `<li>${w}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${result.tips.length > 0 ? `
+                <div class="result-tips">
+                    <h4>💡 نصائح</h4>
+                    <ul>
+                        ${result.tips.map(t => `<li>${t}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            <div class="result-summary">
+                <h4>📋 ملخص إجاباتك</h4>
+                <div class="summary-grid">
+                    ${Object.entries(SmartAssistantData.answers).map(([key, value]) => {
+                        const question = SmartAssistantData.questions.find(q => q.id === key);
+                        const option = question.options.find(o => o.value === value);
+                        return `
+                            <div class="summary-item">
+                                <span class="summary-icon">${question.icon}</span>
+                                <div class="summary-content">
+                                    <div class="summary-label">${question.question}</div>
+                                    <div class="summary-value">${option.label}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <button class="btn btn-primary btn-lg" onclick="proceedWithRecommendation(${result.caseType.primary})">
+                    <span>✅</span>
+                    متابعة تقديم الدعوى
+                </button>
+                <button class="btn btn-outline" onclick="restartAssistant()">
+                    <span>🔄</span>
+                    إعادة الأسئلة
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function analyzeAnswers() {
+    const answers = SmartAssistantData.answers;
+    const mapping = SmartAssistantData.caseTypeMapping;
+    
+    // تحديد نوع الدعوى الأساسي
+    let caseType = mapping[answers.problem_type] || mapping['decision'];
+    let warnings = [];
+    let tips = [];
+    let description = '';
+    
+    // تحليل الإجابات وتقديم النصائح
+    switch(answers.problem_type) {
+        case 'decision':
+            description = 'دعوى لإلغاء قرار إداري صادر من جهة حكومية تراه مخالفاً للنظام أو مضراً بمصالحك.';
+            break;
+        case 'employment':
+            description = 'دعوى متعلقة بحقوقك الوظيفية كموظف حكومي، سواء كانت ترقية أو راتب أو إنهاء خدمة.';
+            break;
+        case 'contract':
+            description = 'دعوى تتعلق بعقد أبرمته مع جهة حكومية ونشأ خلاف حول تنفيذه أو تفسيره.';
+            break;
+        case 'compensation':
+            description = 'دعوى للمطالبة بتعويض مالي عن ضرر لحق بك نتيجة تصرف أو قرار من جهة حكومية.';
+            break;
+        case 'service':
+            description = 'دعوى لإلغاء قرار رفض منحك خدمة أو رخصة كان يحق لك الحصول عليها.';
+            break;
+        case 'disciplinary':
+            description = 'دعوى للطعن في جزاء تأديبي صادر بحقك من جهة عملك الحكومية.';
+            caseType = { primary: 5, name: 'دعوى تأديبية', icon: '⚖️' };
+            break;
+    }
+    
+    // تحذيرات بناءً على الوقت
+    if (answers.time_passed === 'long') {
+        warnings.push('مضى أكثر من 6 أشهر على القرار، قد يكون هناك مشكلة في قبول الدعوى من حيث المدة. ننصح باستشارة محامي.');
+    } else if (answers.time_passed === 'months') {
+        warnings.push('تأكد من تقديم الدعوى في أقرب وقت لتجنب مشاكل المدة النظامية.');
+    }
+    
+    // تحذيرات بناءً على التظلم
+    if (answers.grievance_filed === 'no') {
+        warnings.push('في بعض الحالات يُشترط التظلم للجهة الإدارية قبل رفع الدعوى. ننصح بالتحقق من ذلك.');
+        tips.push('يمكنك تقديم تظلم للجهة الإدارية أولاً وانتظار الرد قبل رفع الدعوى.');
+    }
+    
+    // نصائح عامة
+    tips.push('احتفظ بنسخ من جميع المستندات والمراسلات.');
+    tips.push('تأكد من صحة بيانات الجهة المدعى عليها.');
+    
+    if (answers.request_type === 'compensation' || answers.request_type === 'both') {
+        tips.push('قم بتوثيق جميع الأضرار المادية والمعنوية التي لحقت بك.');
+    }
+    
+    return {
+        caseType,
+        description,
+        warnings,
+        tips
+    };
+}
+
+// وظائف التحكم في المساعد الذكي
+function selectSubmissionMethod(method) {
+    const selectionDiv = document.getElementById('submission-method-selection');
+    const assistantDiv = document.getElementById('smart-assistant-container');
+    const stepperDiv = document.getElementById('stepper');
+    const stepContentDiv = document.getElementById('step-content');
+    const navButtonsDiv = document.getElementById('navigation-buttons');
+    
+    if (method === 'smart') {
+        SmartAssistantData.isActive = true;
+        SmartAssistantData.currentQuestion = 0;
+        SmartAssistantData.answers = {};
+        
+        selectionDiv.style.display = 'none';
+        assistantDiv.style.display = 'block';
+        stepperDiv.style.display = 'none';
+        stepContentDiv.style.display = 'none';
+        navButtonsDiv.style.display = 'none';
+    } else {
+        SmartAssistantData.isActive = false;
+        selectionDiv.style.display = 'none';
+        assistantDiv.style.display = 'none';
+        stepperDiv.style.display = 'flex';
+        stepContentDiv.style.display = 'block';
+        navButtonsDiv.style.display = 'flex';
+    }
+}
+
+function exitSmartAssistant() {
+    const selectionDiv = document.getElementById('submission-method-selection');
+    const assistantDiv = document.getElementById('smart-assistant-container');
+    
+    SmartAssistantData.isActive = false;
+    SmartAssistantData.currentQuestion = 0;
+    SmartAssistantData.answers = {};
+    
+    selectionDiv.style.display = 'block';
+    assistantDiv.style.display = 'none';
+}
+
+function selectAssistantOption(questionId, value) {
+    SmartAssistantData.answers[questionId] = value;
+    
+    // تحديث واجهة الخيارات
+    const container = document.getElementById('assistant-question-container');
+    container.innerHTML = renderAssistantQuestion(SmartAssistantData.currentQuestion);
+    
+    // تفعيل زر التالي
+    const nextBtn = document.getElementById('assistant-next-btn');
+    if (nextBtn) {
+        nextBtn.disabled = false;
+    }
+}
+
+function nextAssistantQuestion() {
+    const currentQ = SmartAssistantData.questions[SmartAssistantData.currentQuestion];
+    
+    // التحقق من اختيار إجابة
+    if (!SmartAssistantData.answers[currentQ.id]) {
+        showNotification('الرجاء اختيار إجابة للمتابعة', 'error');
+        return;
+    }
+    
+    SmartAssistantData.currentQuestion++;
+    
+    if (SmartAssistantData.currentQuestion >= SmartAssistantData.questions.length) {
+        // عرض النتيجة
+        showAssistantResult();
+    } else {
+        updateAssistantUI();
+    }
+}
+
+function prevAssistantQuestion() {
+    if (SmartAssistantData.currentQuestion > 0) {
+        SmartAssistantData.currentQuestion--;
+        updateAssistantUI();
+    }
+}
+
+function updateAssistantUI() {
+    const container = document.getElementById('assistant-question-container');
+    const progressFill = document.getElementById('assistant-progress-fill');
+    const progressText = document.getElementById('assistant-progress-text');
+    const prevBtn = document.getElementById('assistant-prev-btn');
+    const nextBtn = document.getElementById('assistant-next-btn');
+    
+    const currentIndex = SmartAssistantData.currentQuestion;
+    const totalQuestions = SmartAssistantData.questions.length;
+    const currentQ = SmartAssistantData.questions[currentIndex];
+    
+    // تحديث المحتوى
+    container.innerHTML = renderAssistantQuestion(currentIndex);
+    
+    // تحديث شريط التقدم
+    const progress = ((currentIndex + 1) / totalQuestions) * 100;
+    progressFill.style.width = `${progress}%`;
+    progressText.textContent = `السؤال ${currentIndex + 1} من ${totalQuestions}`;
+    
+    // تحديث الأزرار
+    prevBtn.style.visibility = currentIndex > 0 ? 'visible' : 'hidden';
+    nextBtn.disabled = !SmartAssistantData.answers[currentQ.id];
+    nextBtn.innerHTML = currentIndex === totalQuestions - 1 
+        ? '<span>🎯</span> عرض النتيجة' 
+        : 'التالي <span>←</span>';
+}
+
+function showAssistantResult() {
+    const container = document.getElementById('assistant-question-container');
+    const progressFill = document.getElementById('assistant-progress-fill');
+    const progressText = document.getElementById('assistant-progress-text');
+    const navDiv = document.querySelector('.assistant-navigation');
+    
+    // تحديث شريط التقدم
+    progressFill.style.width = '100%';
+    progressText.textContent = 'اكتمل التحليل ✅';
+    
+    // إخفاء أزرار التنقل
+    navDiv.style.display = 'none';
+    
+    // عرض النتيجة
+    container.innerHTML = renderAssistantResult();
+}
+
+function restartAssistant() {
+    SmartAssistantData.currentQuestion = 0;
+    SmartAssistantData.answers = {};
+    
+    const navDiv = document.querySelector('.assistant-navigation');
+    navDiv.style.display = 'flex';
+    
+    updateAssistantUI();
+}
+
+function proceedWithRecommendation(caseTypeId) {
+    // حفظ نوع الدعوى المختار
+    if (typeof AppData !== 'undefined') {
+        AppData.selectedCaseType = caseTypeId;
+    }
+    
+    // الانتقال للنموذج العادي
+    const assistantDiv = document.getElementById('smart-assistant-container');
+    const stepperDiv = document.getElementById('stepper');
+    const stepContentDiv = document.getElementById('step-content');
+    const navButtonsDiv = document.getElementById('navigation-buttons');
+    
+    assistantDiv.style.display = 'none';
+    stepperDiv.style.display = 'flex';
+    stepContentDiv.style.display = 'block';
+    navButtonsDiv.style.display = 'flex';
+    
+    // تحديث خطوة تصنيف الدعوى لتكون محددة مسبقاً
+    showNotification('تم تحديد نوع الدعوى بناءً على إجاباتك. يمكنك تعديله إذا رغبت.', 'success');
 }
 
 function renderStep1() {
@@ -170,18 +630,28 @@ function renderStep1() {
 }
 
 function renderStep2() {
+    const selectedType = typeof AppData !== 'undefined' && AppData.selectedCaseType ? AppData.selectedCaseType : null;
+    
     return `
         <div class="form-section">
             <h3 class="section-title">
                 <div class="section-icon">📋</div>
                 تصنيف الدعوى
             </h3>
+            
+            ${selectedType ? `
+                <div class="alert alert-success" style="margin-bottom: 20px;">
+                    <span>✅</span>
+                    <div>تم تحديد نوع الدعوى بناءً على إجاباتك في المساعد الذكي. يمكنك تغييره إذا رغبت.</div>
+                </div>
+            ` : ''}
+            
             <div class="form-group">
                 <label class="form-label required">نوع الدعوى</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 12px;">
                     ${AppData.caseTypes.map(type => `
-                        <label class="party-card" style="cursor: pointer; margin: 0; padding: 16px;">
-                            <input type="radio" name="case-type" value="${type.id}" style="display: none;">
+                        <label class="party-card ${selectedType === type.id ? 'selected-type' : ''}" style="cursor: pointer; margin: 0; padding: 16px;">
+                            <input type="radio" name="case-type" value="${type.id}" style="display: none;" ${selectedType === type.id ? 'checked' : ''}>
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <span style="font-size: 24px;">${type.icon}</span>
                                 <span style="font-weight: 600;">${type.name}</span>
@@ -248,7 +718,7 @@ function renderStep3() {
             </div>
             
             <div class="file-list" id="file-list">
-                ${renderFileList()}
+                ${typeof renderFileList === 'function' ? renderFileList() : ''}
             </div>
         </div>
         
@@ -258,12 +728,12 @@ function renderStep3() {
                 وصف المستندات
             </h3>
             <div id="file-descriptions">
-                ${AppData.uploadedFiles.map((file, index) => `
+                ${typeof AppData !== 'undefined' && AppData.uploadedFiles ? AppData.uploadedFiles.map((file, index) => `
                     <div class="form-group">
                         <label class="form-label">${file.name}</label>
                         <input type="text" class="form-control" placeholder="وصف المستند">
                     </div>
-                `).join('')}
+                `).join('') : ''}
             </div>
         </div>
     `;
@@ -271,7 +741,7 @@ function renderStep3() {
 
 // ✅ الخطوة الجديدة - خطوة التحقق
 function renderStep4() {
-    const status = AppData.verificationStatus.status;
+    const status = typeof AppData !== 'undefined' ? AppData.verificationStatus.status : 'pending';
     
     return `
         <div class="form-section">
@@ -450,7 +920,7 @@ function renderVerificationStatus(status) {
 // الخطوة الأخيرة - التأكيد والإرسال
 function renderStep5() {
     // التحقق من حالة التحقق قبل السماح بالإرسال
-    const isVerified = AppData.verificationStatus.status === 'verified';
+    const isVerified = typeof AppData !== 'undefined' && AppData.verificationStatus.status === 'verified';
     
     return `
         <div class="form-section">
@@ -496,7 +966,7 @@ function renderStep5() {
                     </div>
                     <div>
                         <div style="color: var(--text-muted); font-size: 13px;">عدد المرفقات</div>
-                        <div style="font-weight: 600;">${AppData.uploadedFiles.length} ملفات</div>
+                        <div style="font-weight: 600;">${typeof AppData !== 'undefined' && AppData.uploadedFiles ? AppData.uploadedFiles.length : 0} ملفات</div>
                     </div>
                     <div>
                         <div style="color: var(--text-muted); font-size: 13px;">حالة التحقق</div>
@@ -543,7 +1013,9 @@ function verifyCode() {
     
     setTimeout(() => {
         if (code === '123456') { // رمز تجريبي
-            AppData.verificationStatus.status = 'verified';
+            if (typeof AppData !== 'undefined') {
+                AppData.verificationStatus.status = 'verified';
+            }
             updateVerificationUI();
             showNotification('تم التحقق بنجاح! يمكنك الآن المتابعة', 'success');
         } else {
@@ -553,7 +1025,9 @@ function verifyCode() {
 }
 
 function simulateVerification(status) {
-    AppData.verificationStatus.status = status;
+    if (typeof AppData !== 'undefined') {
+        AppData.verificationStatus.status = status;
+    }
     updateVerificationUI();
     
     const messages = {
@@ -568,7 +1042,7 @@ function simulateVerification(status) {
 
 function updateVerificationUI() {
     const statusContainer = document.getElementById('verification-status');
-    if (statusContainer) {
+    if (statusContainer && typeof AppData !== 'undefined') {
         statusContainer.innerHTML = renderVerificationStatus(AppData.verificationStatus.status);
     }
     
@@ -577,22 +1051,30 @@ function updateVerificationUI() {
 }
 
 function retryVerification() {
-    AppData.verificationStatus.status = 'pending';
+    if (typeof AppData !== 'undefined') {
+        AppData.verificationStatus.status = 'pending';
+    }
     updateVerificationUI();
     showNotification('تم إعادة طلب التحقق، سيتواصل معك الموظف قريباً', 'info');
 }
 
 function goToStep(stepNumber) {
-    AppData.currentStep = stepNumber;
-    updateStepContent();
-    updateStepperUI();
+    if (typeof AppData !== 'undefined') {
+        AppData.currentStep = stepNumber;
+    }
+    if (typeof updateStepContent === 'function') {
+        updateStepContent();
+    }
+    if (typeof updateStepperUI === 'function') {
+        updateStepperUI();
+    }
 }
 
 function updateNavigationButtons() {
     const nextBtn = document.getElementById('next-btn');
     
     // في خطوة التحقق، لا يمكن المتابعة إلا بعد التحقق
-    if (AppData.currentStep === 4 && nextBtn) {
+    if (typeof AppData !== 'undefined' && AppData.currentStep === 4 && nextBtn) {
         const isVerified = AppData.verificationStatus.status === 'verified';
         nextBtn.disabled = !isVerified;
         nextBtn.style.opacity = isVerified ? '1' : '0.5';
@@ -603,7 +1085,9 @@ function updateNavigationButtons() {
 function toggleAgentForm() {
     const agentForm = document.getElementById('agent-form');
     const checkbox = document.getElementById('has-agent');
-    agentForm.style.display = checkbox.checked ? 'block' : 'none';
+    if (agentForm && checkbox) {
+        agentForm.style.display = checkbox.checked ? 'block' : 'none';
+    }
 }
 
 function addDefendant() {
@@ -612,7 +1096,7 @@ function addDefendant() {
 
 function submitCase() {
     // التحقق من حالة التحقق
-    if (AppData.verificationStatus.status !== 'verified') {
+    if (typeof AppData !== 'undefined' && AppData.verificationStatus.status !== 'verified') {
         showNotification('يجب إتمام خطوة التحقق قبل تقديم الدعوى', 'error');
         return;
     }
@@ -626,6 +1110,17 @@ function submitCase() {
     showNotification('جاري تقديم الدعوى...', 'info');
     
     setTimeout(() => {
-        showSuccessModal();
+        if (typeof showSuccessModal === 'function') {
+            showSuccessModal();
+        }
     }, 1500);
+}
+
+// دالة showNotification (في حال عدم وجودها)
+function showNotification(message, type) {
+    if (typeof window.showNotification === 'function') {
+        window.showNotification(message, type);
+    } else {
+        alert(message);
+    }
 }
