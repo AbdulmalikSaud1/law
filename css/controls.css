@@ -1,0 +1,217 @@
+/* controls.css - عناصر التحكم (الأزرار والشارات والتنبيهات) */
+
+/* الأزرار */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+    color: var(--text-inverse);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--white);
+    color: var(--primary-700);
+    border: 2px solid var(--primary-300);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-50);
+    border-color: var(--primary-500);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--secondary-500), var(--secondary-600));
+    color: var(--text-inverse);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, var(--secondary-600), var(--secondary-700));
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-500), #dc2626);
+    color: var(--text-inverse);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-600);
+    border: 2px solid var(--primary-400);
+}
+
+.btn-outline:hover {
+    background: var(--primary-600);
+    color: var(--text-inverse);
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-lg {
+    padding: 16px 32px;
+    font-size: 16px;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* الشارات */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-primary {
+    background: var(--primary-100);
+    color: var(--primary-700);
+}
+
+.badge-success {
+    background: var(--success-100);
+    color: var(--secondary-700);
+}
+
+.badge-warning {
+    background: var(--warning-100);
+    color: #b45309;
+}
+
+.badge-danger {
+    background: var(--danger-100);
+    color: #b91c1c;
+}
+
+.badge-info {
+    background: var(--info-100);
+    color: #1d4ed8;
+}
+
+/* التنبيهات */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.alert-success {
+    background: var(--success-100);
+    border: 1px solid var(--success-500);
+    color: var(--secondary-800);
+}
+
+.alert-warning {
+    background: var(--warning-100);
+    border: 1px solid var(--warning-500);
+    color: #92400e;
+}
+
+.alert-danger {
+    background: var(--danger-100);
+    border: 1px solid var(--danger-500);
+    color: #991b1b;
+}
+
+.alert-info {
+    background: var(--info-100);
+    border: 1px solid var(--info-500);
+    color: #1e40af;
+}
+
+/* التبويبات */
+.tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--gray-100);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.tab {
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.tab:hover {
+    color: var(--primary-600);
+}
+
+.tab.active {
+    background: var(--white);
+    color: var(--primary-700);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Loader */
+.loader {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--gray-200);
+    border-top-color: var(--primary-600);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* رسائل فارغة */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.empty-state-text {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}

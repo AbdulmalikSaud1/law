@@ -1,0 +1,365 @@
+/* cards.css - البطاقات */
+
+/* البطاقات الأساسية */
+.card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
+}
+
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--gray-50);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.card-body {
+    padding: 24px;
+}
+
+.card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-light);
+    background: var(--gray-50);
+}
+
+/* بطاقات الخدمات */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.service-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-300);
+}
+
+.service-card.active {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+}
+
+.service-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+}
+
+.service-card:nth-child(2) .service-icon {
+    background: linear-gradient(135deg, var(--secondary-100), var(--secondary-200));
+}
+
+.service-card:nth-child(3) .service-icon {
+    background: linear-gradient(135deg, var(--warning-100), #fde68a);
+}
+
+.service-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.service-desc {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.7;
+}
+
+.service-features {
+    text-align: right;
+    margin-bottom: 24px;
+}
+
+.service-feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.service-feature-icon {
+    color: var(--success-500);
+}
+
+/* بطاقة الطرف */
+.party-card {
+    background: var(--gray-50);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 2px solid var(--border-light);
+}
+
+.party-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.party-title {
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.party-badge {
+    padding: 4px 12px;
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* بطاقات القضايا */
+.cases-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.case-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    border-right: 4px solid var(--primary-500);
+    transition: all 0.3s ease;
+}
+
+.case-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateX(-4px);
+}
+
+.case-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.case-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-700);
+}
+
+.case-status {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.case-status.pending {
+    background: var(--warning-100);
+    color: #b45309;
+}
+
+.case-status.active {
+    background: var(--info-100);
+    color: #1d4ed8;
+}
+
+.case-status.completed {
+    background: var(--success-100);
+    color: var(--secondary-700);
+}
+
+.case-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.case-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.case-detail-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.case-detail-value {
+    font-weight: 600;
+}
+
+.case-actions {
+    display: flex;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+/* بطاقة الجلسة */
+.session-card {
+    background: linear-gradient(135deg, var(--primary-50), var(--white));
+    border: 2px solid var(--primary-200);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.session-date {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.session-date-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-600);
+    color: var(--white);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.session-date-day {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.session-info h4 {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.session-info p {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.session-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--success-500);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.session-link:hover {
+    background: var(--secondary-600);
+}
+
+/* بطاقة الحكم */
+.verdict-card {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.verdict-header {
+    background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+    color: var(--white);
+    padding: 24px 32px;
+}
+
+.verdict-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.verdict-meta {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.verdict-body {
+    padding: 32px;
+}
+
+.verdict-content {
+    background: var(--gray-50);
+    padding: 24px;
+    border-radius: 12px;
+    border-right: 4px solid var(--primary-500);
+    margin-bottom: 24px;
+    line-height: 1.8;
+}
+
+.verdict-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .case-actions {
+        flex-direction: column;
+    }
+
+    .verdict-actions {
+        flex-direction: column;
+    }
+}
