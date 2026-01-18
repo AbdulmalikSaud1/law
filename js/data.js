@@ -3,7 +3,16 @@
 const AppData = {
     currentSection: 'home',
     currentStep: 1,
-    totalSteps: 4,
+    totalSteps: 5, // تم تغييرها من 4 إلى 5
+    
+    // حالة التحقق
+    verificationStatus: {
+        status: 'pending', // pending, in_progress, verified, rejected
+        employeeName: '',
+        employeeId: '',
+        verificationCode: '',
+        notes: ''
+    },
     
     caseTypes: [
         { id: 1, name: 'دعاوى الاستحقاق', icon: '📋' },

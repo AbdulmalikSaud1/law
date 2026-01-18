@@ -257,3 +257,125 @@
         grid-template-columns: 1fr;
     }
 }
+/* ==========================================
+   أنماط خطوة التحقق
+   ========================================== */
+
+/* حركة التحميل للتحقق */
+.verification-loader {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--gray-200);
+    border-top-color: var(--primary-600);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* بطاقة حالة التحقق */
+.verification-status-card {
+    margin-bottom: 24px;
+}
+
+/* حقل رمز التحقق */
+#verification-code-input {
+    font-family: 'Courier New', monospace;
+}
+
+#verification-code-input:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.2);
+}
+
+/* تنسيق الخطوات في الـ Stepper */
+.stepper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    position: relative;
+    padding: 0 20px;
+}
+
+.stepper::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    left: 40px;
+    height: 3px;
+    background: var(--gray-200);
+    z-index: 0;
+}
+
+/* تحسين عرض الخطوات على الشاشات الصغيرة */
+@media (max-width: 768px) {
+    .stepper {
+        padding: 0 10px;
+    }
+
+    .stepper::before {
+        right: 20px;
+        left: 20px;
+    }
+
+    .step-label {
+        font-size: 11px;
+        max-width: 60px;
+        text-align: center;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+}
+
+/* أنماط الزر المعطل */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* تأثير النبض للحالة الجارية */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.verification-status-card .verification-loader {
+    animation: spin 1s linear infinite;
+}
+
+/* رسالة حالة التحقق */
+.verification-message {
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.verification-message.pending {
+    background: var(--warning-100);
+    border: 1px solid var(--warning-500);
+}
+
+.verification-message.success {
+    background: var(--success-100);
+    border: 1px solid var(--success-500);
+}
+
+.verification-message.error {
+    background: var(--danger-100);
+    border: 1px solid var(--danger-500);
+}
