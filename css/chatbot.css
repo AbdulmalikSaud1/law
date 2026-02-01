@@ -332,6 +332,67 @@
     border-color: var(--primary-500);
 }
 
+/* زر الميكروفون */
+.chatbot-voice-btn {
+    width: 48px;
+    height: 48px;
+    background: var(--success-500, #10b981);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.chatbot-voice-btn:hover {
+    background: var(--success-600, #059669);
+    transform: scale(1.05);
+}
+
+/* حالة التسجيل */
+.chatbot-voice-btn.recording {
+    background: var(--danger-500, #ef4444);
+    animation: recordingPulse 1.5s infinite;
+}
+
+.chatbot-voice-btn.recording::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 3px solid var(--danger-400, #f87171);
+    animation: recordingRing 1.5s infinite;
+}
+
+@keyframes recordingPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes recordingRing {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
 .chatbot-send-btn {
     width: 48px;
     height: 48px;
@@ -369,6 +430,66 @@
         width: 56px;
         height: 56px;
     }
+}
+
+/* زر الميكروفون العائم */
+.chatbot-floating-voice {
+    position: absolute;
+    bottom: 120px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.chatbot-voice-fab {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.chatbot-voice-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+.chatbot-voice-fab.recording {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    animation: recordingPulse 1.5s infinite;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6);
+}
+
+.chatbot-voice-fab.recording::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 3px solid rgba(239, 68, 68, 0.6);
+    animation: recordingRing 1.5s infinite;
+}
+
+.voice-hint {
+    font-size: 11px;
+    color: var(--text-muted, #64748b);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
 }
 
 /* تأثير الكتابة */

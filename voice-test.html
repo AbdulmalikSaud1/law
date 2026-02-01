@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار ميزة التعرف على الصوت - شات بوت</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .test-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-right: 4px solid #667eea;
+        }
+
+        .instructions h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .instructions ol {
+            padding-right: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .voice-test-area {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        .mic-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 40px;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-button.recording {
+            background: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .result {
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            min-height: 80px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .status {
+            font-size: 18px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .browser-support {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .browser-support h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .browser-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .browser-list li {
+            padding: 5px 0;
+        }
+
+        .supported {
+            color: green;
+        }
+
+        .limited {
+            color: orange;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🎤 اختبار ميزة التعرف على الصوت</h1>
+
+        <div class="instructions">
+            <h2>📝 التعليمات:</h2>
+            <ol>
+                <li>اضغط على زر الميكروفون 🎤 أدناه</li>
+                <li>اسمح للمتصفح بالوصول إلى الميكروفون (عند الطلب)</li>
+                <li>انتظر حتى يتحول الزر إلى اللون الأحمر</li>
+                <li>تحدث بوضوح بالعربية (مثال: "تقديم دعوى" أو "متابعة قضاياي")</li>
+                <li>سيتم عرض النص المُعترف به أدناه</li>
+            </ol>
+        </div>
+
+        <div class="voice-test-area">
+            <div class="status" id="status">اضغط على الميكروفون للبدء</div>
+            <button class="mic-button" id="micButton" onclick="toggleRecording()">🎤</button>
+
+            <div class="result" id="result">
+                <h3>النص المُعترف به:</h3>
+                <p id="transcript"></p>
+            </div>
+        </div>
+
+        <div class="browser-support">
+            <h3>⚙️ دعم المتصفحات:</h3>
+            <ul class="browser-list">
+                <li class="supported">✅ Google Chrome (موصى به)</li>
+                <li class="supported">✅ Microsoft Edge</li>
+                <li class="supported">✅ Safari</li>
+                <li class="limited">⚠️ Firefox (دعم محدود)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isRecording = false;
+
+        // تهيئة التعرف على الصوت
+        function initRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition) {
+                alert('عذراً، متصفحك لا يدعم ميزة التعرف على الصوت.\nيرجى استخدام Google Chrome أو Microsoft Edge.');
+                return false;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ar-SA';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                updateStatus('🎤 جاري الاستماع... تحدث الآن');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const confidence = (event.results[0][0].confidence * 100).toFixed(2);
+
+                document.getElementById('transcript').innerHTML = `
+                    <strong>الكلام:</strong> ${transcript}<br>
+                    <strong>نسبة الثقة:</strong> ${confidence}%
+                `;
+                document.getElementById('result').classList.add('show');
+                updateStatus('✅ تم التعرف على الصوت بنجاح!');
+            };
+
+            recognition.onerror = (event) => {
+                let errorMessage = '';
+                switch (event.error) {
+                    case 'no-speech':
+                        errorMessage = '⚠️ لم يتم اكتشاف أي صوت';
+                        break;
+                    case 'not-allowed':
+                        errorMessage = '❌ يرجى السماح بالوصول إلى الميكروفون';
+                        break;
+                    case 'aborted':
+                        errorMessage = '⏹️ تم إلغاء التسجيل';
+                        break;
+                    default:
+                        errorMessage = '❌ حدث خطأ: ' + event.error;
+                }
+                updateStatus(errorMessage);
+                stopRecording();
+            };
+
+            recognition.onend = () => {
+                stopRecording();
+            };
+
+            return true;
+        }
+
+        function toggleRecording() {
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+
+        function startRecording() {
+            if (!recognition && !initRecognition()) {
+                return;
+            }
+
+            try {
+                isRecording = true;
+                recognition.start();
+
+                const micButton = document.getElementById('micButton');
+                micButton.classList.add('recording');
+                micButton.textContent = '⏸️';
+            } catch (error) {
+                console.error('خطأ في بدء التسجيل:', error);
+                stopRecording();
+            }
+        }
+
+        function stopRecording() {
+            if (!isRecording) return;
+
+            isRecording = false;
+
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (error) {
+                    console.error('خطأ في إيقاف التسجيل:', error);
+                }
+            }
+
+            const micButton = document.getElementById('micButton');
+            micButton.classList.remove('recording');
+            micButton.textContent = '🎤';
+
+            if (document.getElementById('status').textContent.includes('جاري')) {
+                updateStatus('اضغط على الميكروفون للبدء');
+            }
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+    </script>
+</body>
+
+</html>

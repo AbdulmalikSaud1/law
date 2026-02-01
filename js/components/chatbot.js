@@ -4,7 +4,9 @@ const ChatBot = {
     isOpen: false,
     currentFlow: 'main', // main, services, cases, help, contact
     conversationHistory: [],
-    
+    isRecording: false,
+    recognition: null,
+
     // هيكل الخيارات والتدفقات
     flows: {
         main: {
@@ -19,7 +21,7 @@ const ChatBot = {
                 { id: 7, text: '🔍 البحث عن خدمة', action: 'flow', target: 'services' }
             ]
         },
-        
+
         services: {
             message: 'اختر نوع الخدمة التي تبحث عنها:',
             options: [
@@ -30,7 +32,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 العودة للقائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         admin_cases: {
             message: 'الدعاوى الإدارية تشمل:\n\n• إلغاء القرارات الإدارية\n• دعاوى الاستحقاق الوظيفي\n• المنازعات الوظيفية\n\nماذا تريد أن تفعل؟',
             options: [
@@ -40,7 +42,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'services' }
             ]
         },
-        
+
         disciplinary_cases: {
             message: 'الدعاوى التأديبية تشمل:\n\n• الطعن في القرارات التأديبية\n• طلب إعادة النظر\n\nماذا تريد أن تفعل؟',
             options: [
@@ -49,7 +51,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'services' }
             ]
         },
-        
+
         compensation_cases: {
             message: 'دعاوى التعويض تشمل:\n\n• التعويض عن القرارات الخاطئة\n• التعويض عن الأضرار\n\nماذا تريد أن تفعل؟',
             options: [
@@ -58,7 +60,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'services' }
             ]
         },
-        
+
         contract_cases: {
             message: 'دعاوى العقود الإدارية تشمل:\n\n• منازعات العقود الحكومية\n• المطالبات المالية\n\nماذا تريد أن تفعل؟',
             options: [
@@ -67,7 +69,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'services' }
             ]
         },
-        
+
         faq: {
             message: 'اختر السؤال الذي تبحث عن إجابته:',
             options: [
@@ -80,7 +82,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 العودة للقائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         contact: {
             message: 'اختر طريقة التواصل المناسبة:',
             options: [
@@ -92,7 +94,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 العودة للقائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         cases_menu: {
             message: 'اختر ما تريد معرفته عن قضاياك:',
             options: [
@@ -103,7 +105,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 العودة للقائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         search_case: {
             message: 'للبحث عن قضية، يرجى إدخال رقم القضية:',
             options: [],
@@ -112,7 +114,7 @@ const ChatBot = {
             inputAction: 'searchCase'
         }
     },
-    
+
     // المعلومات والردود
     infoResponses: {
         admin_requirements: {
@@ -132,7 +134,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'admin_cases' }
             ]
         },
-        
+
         disciplinary_requirements: {
             title: 'شروط الدعاوى التأديبية',
             content: `📋 **المستندات المطلوبة:**
@@ -148,7 +150,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'disciplinary_cases' }
             ]
         },
-        
+
         compensation_requirements: {
             title: 'شروط دعاوى التعويض',
             content: `📋 **المستندات المطلوبة:**
@@ -165,7 +167,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'compensation_cases' }
             ]
         },
-        
+
         contract_requirements: {
             title: 'شروط دعاوى العقود الإدارية',
             content: `📋 **المستندات المطلوبة:**
@@ -182,7 +184,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'contract_cases' }
             ]
         },
-        
+
         faq_duration: {
             title: 'مدة النظر في الدعوى',
             content: `⏱️ **المدد الزمنية المتوقعة:**
@@ -201,7 +203,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         faq_documents: {
             title: 'المستندات المطلوبة',
             content: `📄 **المستندات الأساسية لجميع الدعاوى:**
@@ -218,7 +220,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         faq_fees: {
             title: 'رسوم الدعاوى',
             content: `💰 **رسوم القضاء الإداري:**
@@ -234,7 +236,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         faq_tracking: {
             title: 'متابعة القضية',
             content: `🔍 **طرق متابعة القضية:**
@@ -252,7 +254,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         faq_appeal: {
             title: 'الاعتراض على الأحكام',
             content: `⚖️ **الاعتراض على الأحكام:**
@@ -275,7 +277,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         faq_locations: {
             title: 'مواقع المحاكم',
             content: `🏛️ **المحاكم الإدارية:**
@@ -293,7 +295,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         contact_phone: {
             title: 'الاتصال الهاتفي',
             content: `📞 **مركز الاتصال الموحد:**
@@ -314,7 +316,7 @@ const ChatBot = {
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         contact_email: {
             title: 'البريد الإلكتروني',
             content: `📧 **التواصل عبر البريد:**
@@ -332,7 +334,7 @@ support@bog.gov.sa
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         contact_branches: {
             title: 'فروع المحاكم',
             content: `🏢 **الفروع الرئيسية:**
@@ -353,7 +355,7 @@ support@bog.gov.sa
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         contact_social: {
             title: 'التواصل الاجتماعي',
             content: `📱 **حسابات التواصل الاجتماعي:**
@@ -370,7 +372,7 @@ support@bog.gov.sa
                 { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
             ]
         },
-        
+
         active_cases: {
             title: 'القضايا الجارية',
             content: `📊 **قضاياك الجارية:**
@@ -389,7 +391,7 @@ support@bog.gov.sa
                 { id: 0, text: '🔙 رجوع', action: 'flow', target: 'cases_menu' }
             ]
         },
-        
+
         completed_cases: {
             title: 'القضايا المنتهية',
             content: `✅ **قضاياك المنتهية:**
@@ -405,13 +407,207 @@ support@bog.gov.sa
             ]
         }
     },
-    
+
     // تهيئة الشات بوت
     init() {
         this.render();
         this.bindEvents();
+        this.initVoiceRecognition();
     },
-    
+
+    // تهيئة التعرف على الصوت
+    initVoiceRecognition() {
+        // التحقق من دعم المتصفح للتعرف على الصوت
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            console.warn('التعرف على الصوت غير مدعوم في هذا المتصفح');
+            return;
+        }
+
+        this.recognition = new SpeechRecognition();
+        this.recognition.lang = 'ar-SA'; // اللغة العربية
+        this.recognition.continuous = false; // التوقف تلقائياً بعد التعرف
+        this.recognition.interimResults = false; // عدم إظهار النتائج المؤقتة
+
+        // عند التعرف على الكلام
+        this.recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const input = document.getElementById('chatbot-input');
+            input.value = transcript;
+            this.stopVoiceRecording();
+        };
+
+        // عند حدوث خطأ
+        this.recognition.onerror = (event) => {
+            console.error('خطأ في التعرف على الصوت:', event.error);
+            this.stopVoiceRecording();
+
+            if (event.error === 'no-speech') {
+                this.addBotMessage('⚠️ لم يتم اكتشاف أي صوت. حاول مرة أخرى.');
+            } else if (event.error === 'not-allowed') {
+                this.addBotMessage('❌ يرجى السماح بالوصول إلى الميكروفون من إعدادات المتصفح.');
+            }
+        };
+
+        // عند انتهاء التسجيل
+        this.recognition.onend = () => {
+            this.stopVoiceRecording();
+        };
+    },
+
+    // تبديل التسجيل الصوتي
+    toggleVoiceRecording() {
+        if (this.isRecording) {
+            this.stopVoiceRecording();
+        } else {
+            this.startVoiceRecording();
+        }
+    },
+
+    // بدء التسجيل الصوتي
+    startVoiceRecording() {
+        if (!this.recognition) {
+            alert('التعرف على الصوت غير مدعوم في متصفحك. يرجى استخدام متصفح حديث مثل Chrome.');
+            return;
+        }
+
+        try {
+            this.isRecording = true;
+            this.recognition.start();
+
+            // تحديث واجهة الزر
+            const voiceBtn = document.getElementById('chatbot-voice-btn');
+            const voiceIcon = document.getElementById('voice-icon');
+
+            voiceBtn.classList.add('recording');
+            voiceIcon.textContent = '⏸️';
+
+            // إضافة رسالة للمستخدم
+            this.addBotMessage('🎤 جاري الاستماع... تحدث الآن');
+        } catch (error) {
+            console.error('خطأ في بدء التسجيل:', error);
+            this.stopVoiceRecording();
+        }
+    },
+
+    // إيقاف التسجيل الصوتي
+    stopVoiceRecording() {
+        if (!this.isRecording) return;
+
+        try {
+            this.isRecording = false;
+            if (this.recognition) {
+                this.recognition.stop();
+            }
+
+            // تحديث واجهة الزر
+            const voiceBtn = document.getElementById('chatbot-voice-btn');
+            const voiceIcon = document.getElementById('voice-icon');
+
+            if (voiceBtn) {
+                voiceBtn.classList.remove('recording');
+                voiceIcon.textContent = '🎤';
+            }
+
+            // تحديث الزر العائم
+            const voiceFab = document.getElementById('chatbot-voice-fab');
+            const voiceFabIcon = document.getElementById('voice-fab-icon');
+
+            if (voiceFab) {
+                voiceFab.classList.remove('recording');
+                voiceFabIcon.textContent = '🎤';
+            }
+        } catch (error) {
+            console.error('خطأ في إيقاف التسجيل:', error);
+        }
+    },
+
+    // معالجة الأمر الصوتي للشات بوت
+    handleVoiceCommand() {
+        if (this.isRecording) {
+            this.stopVoiceRecording();
+            return;
+        }
+
+        if (!this.recognition) {
+            alert('التعرف على الصوت غير مدعوم في متصفحك. يرجى استخدام متصفح حديث مثل Chrome.');
+            return;
+        }
+
+        try {
+            this.isRecording = true;
+
+            // تحديث واجهة الزر العائم
+            const voiceFab = document.getElementById('chatbot-voice-fab');
+            const voiceFabIcon = document.getElementById('voice-fab-icon');
+
+            voiceFab.classList.add('recording');
+            voiceFabIcon.textContent = '⏸️';
+
+            // إزالة الخيارات السابقة
+            this.removeOptions();
+
+            // إضافة رسالة للمستخدم
+            this.addBotMessage('🎤 جاري الاستماع... تحدث الآن');
+
+            // تحديث دالة onresult لإرسال الرسالة مباشرة
+            this.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+
+                // إضافة رسالة المستخدم
+                this.addUserMessage(transcript);
+
+                // معالجة الرسالة
+                setTimeout(() => {
+                    this.processVoiceCommand(transcript);
+                }, 500);
+
+                this.stopVoiceRecording();
+            };
+
+            this.recognition.start();
+        } catch (error) {
+            console.error('خطأ في بدء التسجيل:', error);
+            this.stopVoiceRecording();
+        }
+    },
+
+    // معالجة الأمر الصوتي
+    processVoiceCommand(command) {
+        const lowerCommand = command.toLowerCase();
+
+        // البحث عن كلمات مفتاحية والانتقال المباشر للصفحة
+        if (lowerCommand.includes('دعوى') || lowerCommand.includes('تقديم') || lowerCommand.includes('طلب')) {
+            this.addBotMessage('✅ سأنقلك الآن إلى صفحة تقديم الطلبات...');
+            setTimeout(() => this.navigateTo('requests'), 1000);
+        } else if (lowerCommand.includes('قضاي') || lowerCommand.includes('متابعة') || lowerCommand.includes('قضية')) {
+            this.addBotMessage('✅ سأنقلك الآن إلى صفحة القضايا...');
+            setTimeout(() => this.navigateTo('cases'), 1000);
+        } else if (lowerCommand.includes('جلس') || lowerCommand.includes('موعد') || lowerCommand.includes('جلسة')) {
+            this.addBotMessage('✅ سأنقلك الآن إلى صفحة الجلسات...');
+            setTimeout(() => this.navigateTo('sessions'), 1000);
+        } else if (lowerCommand.includes('حكم') || lowerCommand.includes('اعتراض') || lowerCommand.includes('أحكام')) {
+            this.addBotMessage('✅ سأنقلك الآن إلى صفحة الأحكام...');
+            setTimeout(() => this.navigateTo('verdicts'), 1000);
+        } else if (lowerCommand.includes('رئيسي') || lowerCommand.includes('البداية') || lowerCommand.includes('الصفحة الرئيسية')) {
+            this.addBotMessage('✅ سأنقلك الآن إلى الصفحة الرئيسية...');
+            setTimeout(() => this.navigateTo('home'), 1000);
+        } else if (lowerCommand.includes('مساعدة') || lowerCommand.includes('اسئل') || lowerCommand.includes('سؤال') || lowerCommand.includes('استفسار')) {
+            // للأسئلة الشائعة، نعرض القائمة لأنها ليست صفحة منفصلة
+            this.addBotMessage('📋 إليك الأسئلة الشائعة:');
+            setTimeout(() => this.showFlow('faq'), 500);
+        } else if (lowerCommand.includes('تواصل') || lowerCommand.includes('اتصال') || lowerCommand.includes('تواصل معنا')) {
+            // للتواصل، نعرض القائمة
+            this.addBotMessage('📞 إليك طرق التواصل المتاحة:');
+            setTimeout(() => this.showFlow('contact'), 500);
+        } else {
+            // إذا لم يتم التعرف على الأمر، عرض القائمة الرئيسية
+            this.addBotMessage(`🤔 لم أفهم طلبك بدقة. دعني أعرض لك الخيارات المتاحة:`);
+            setTimeout(() => this.showFlow('main'), 500);
+        }
+    },
+
     // عرض واجهة الشات بوت
     render() {
         const chatbotHTML = `
@@ -444,18 +640,29 @@ support@bog.gov.sa
                     <!-- الرسائل ستظهر هنا -->
                 </div>
                 
+                <!-- زر الميكروفون العائم -->
+                <div class="chatbot-floating-voice" id="chatbot-floating-voice">
+                    <button class="chatbot-voice-fab" id="chatbot-voice-fab" onclick="ChatBot.handleVoiceCommand()" title="إرسال رسالة صوتية">
+                        <span id="voice-fab-icon">🎤</span>
+                    </button>
+                    <div class="voice-hint">اضغط للتحدث</div>
+                </div>
+                
                 <div class="chatbot-input-area" id="chatbot-input-area" style="display: none;">
                     <input type="text" class="chatbot-input" id="chatbot-input" placeholder="اكتب رقم القضية...">
+                    <button class="chatbot-voice-btn" id="chatbot-voice-btn" onclick="ChatBot.toggleVoiceRecording()" title="التسجيل الصوتي">
+                        <span id="voice-icon">🎤</span>
+                    </button>
                     <button class="chatbot-send-btn" onclick="ChatBot.handleInput()">
                         <span>➤</span>
                     </button>
                 </div>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', chatbotHTML);
     },
-    
+
     // ربط الأحداث
     bindEvents() {
         // الضغط على Enter في حقل الإدخال
@@ -465,17 +672,17 @@ support@bog.gov.sa
             }
         });
     },
-    
+
     // فتح/إغلاق الشات
     toggle() {
         this.isOpen = !this.isOpen;
         const container = document.getElementById('chatbot-container');
         const fab = document.getElementById('chatbot-fab');
-        
+
         if (this.isOpen) {
             container.classList.add('open');
             fab.classList.add('open');
-            
+
             // عرض الرسالة الترحيبية إذا كان فارغاً
             if (this.conversationHistory.length === 0) {
                 this.startConversation();
@@ -485,39 +692,39 @@ support@bog.gov.sa
             fab.classList.remove('open');
         }
     },
-    
+
     // بدء المحادثة
     startConversation() {
         this.showFlow('main');
     },
-    
+
     // إعادة المحادثة من البداية
     restart() {
         this.conversationHistory = [];
         this.currentFlow = 'main';
-        
+
         const messagesContainer = document.getElementById('chatbot-messages');
         messagesContainer.innerHTML = '';
-        
+
         this.hideInputArea();
         this.startConversation();
     },
-    
+
     // عرض تدفق معين
     showFlow(flowId) {
         const flow = this.flows[flowId];
         if (!flow) return;
-        
+
         this.currentFlow = flowId;
-        
+
         // إضافة رسالة البوت
         this.addBotMessage(flow.message);
-        
+
         // إضافة الخيارات
         if (flow.options && flow.options.length > 0) {
             this.showOptions(flow.options);
         }
-        
+
         // إظهار حقل الإدخال إذا كان مطلوباً
         if (flow.inputMode) {
             this.showInputArea(flow.inputPlaceholder);
@@ -525,25 +732,25 @@ support@bog.gov.sa
             this.hideInputArea();
         }
     },
-    
+
     // عرض معلومات
     showInfo(infoId) {
         const info = this.infoResponses[infoId];
         if (!info) return;
-        
+
         // إضافة رسالة المعلومات
         this.addBotMessage(`**${info.title}**\n\n${info.content}`);
-        
+
         // إضافة خيارات المتابعة
         if (info.options && info.options.length > 0) {
             this.showOptions(info.options);
         }
     },
-    
+
     // إضافة رسالة من البوت
     addBotMessage(message) {
         const messagesContainer = document.getElementById('chatbot-messages');
-        
+
         const messageHTML = `
             <div class="chat-message bot-message">
                 <div class="message-avatar">🤖</div>
@@ -553,18 +760,18 @@ support@bog.gov.sa
                 </div>
             </div>
         `;
-        
+
         messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
         this.scrollToBottom();
-        
+
         // حفظ في التاريخ
         this.conversationHistory.push({ type: 'bot', message });
     },
-    
+
     // إضافة رسالة من المستخدم
     addUserMessage(message) {
         const messagesContainer = document.getElementById('chatbot-messages');
-        
+
         const messageHTML = `
             <div class="chat-message user-message">
                 <div class="message-content">
@@ -573,18 +780,18 @@ support@bog.gov.sa
                 </div>
             </div>
         `;
-        
+
         messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
         this.scrollToBottom();
-        
+
         // حفظ في التاريخ
         this.conversationHistory.push({ type: 'user', message });
     },
-    
+
     // عرض الخيارات
     showOptions(options) {
         const messagesContainer = document.getElementById('chatbot-messages');
-        
+
         const optionsHTML = `
             <div class="chat-options">
                 ${options.map(opt => `
@@ -595,19 +802,19 @@ support@bog.gov.sa
                 `).join('')}
             </div>
         `;
-        
+
         messagesContainer.insertAdjacentHTML('beforeend', optionsHTML);
         this.scrollToBottom();
     },
-    
+
     // معالجة اختيار خيار
     handleOption(option) {
         // إضافة رسالة المستخدم
         this.addUserMessage(option.text);
-        
+
         // إزالة الخيارات السابقة
         this.removeOptions();
-        
+
         // تنفيذ الإجراء
         setTimeout(() => {
             switch (option.action) {
@@ -623,56 +830,56 @@ support@bog.gov.sa
             }
         }, 500);
     },
-    
+
     // الانتقال لصفحة
     navigateTo(page, params) {
         this.addBotMessage(`جاري تحويلك إلى ${this.getPageName(page)}...`);
-        
+
         setTimeout(() => {
             // إغلاق الشات
             this.toggle();
-            
+
             // الانتقال للصفحة
             if (typeof navigateTo === 'function') {
                 navigateTo(page);
             }
-            
+
             // تطبيق المعلمات إذا وجدت
             if (params) {
                 console.log('Params:', params);
             }
         }, 1000);
     },
-    
+
     // معالجة إدخال المستخدم
     handleInput() {
         const input = document.getElementById('chatbot-input');
         const value = input.value.trim();
-        
+
         if (!value) return;
-        
+
         // إضافة رسالة المستخدم
         this.addUserMessage(value);
         input.value = '';
-        
+
         // معالجة الإدخال حسب التدفق الحالي
         const flow = this.flows[this.currentFlow];
         if (flow && flow.inputAction === 'searchCase') {
             this.searchCase(value);
         }
     },
-    
+
     // البحث عن قضية
     searchCase(caseNumber) {
         this.hideInputArea();
-        
+
         // محاكاة البحث
         setTimeout(() => {
             const found = AppData.cases.find(c => c.id.toLowerCase() === caseNumber.toLowerCase());
-            
+
             if (found) {
                 this.addBotMessage(`✅ **تم العثور على القضية:**\n\n📋 **رقم القضية:** ${found.id}\n📂 **النوع:** ${found.type}\n🏛️ **المحكمة:** ${found.court}\n📊 **الحالة:** ${found.statusText}`);
-                
+
                 this.showOptions([
                     { id: 1, text: '📂 عرض تفاصيل القضية', action: 'navigate', target: 'cases' },
                     { id: 2, text: '🔍 البحث عن قضية أخرى', action: 'flow', target: 'search_case' },
@@ -680,7 +887,7 @@ support@bog.gov.sa
                 ]);
             } else {
                 this.addBotMessage(`❌ لم يتم العثور على قضية بهذا الرقم.\n\nتأكد من صحة رقم القضية وحاول مرة أخرى.`);
-                
+
                 this.showOptions([
                     { id: 1, text: '🔍 محاولة مرة أخرى', action: 'flow', target: 'search_case' },
                     { id: 0, text: '🔙 القائمة الرئيسية', action: 'flow', target: 'main' }
@@ -688,36 +895,36 @@ support@bog.gov.sa
             }
         }, 1000);
     },
-    
+
     // إظهار حقل الإدخال
     showInputArea(placeholder) {
         const inputArea = document.getElementById('chatbot-input-area');
         const input = document.getElementById('chatbot-input');
-        
+
         inputArea.style.display = 'flex';
         input.placeholder = placeholder || 'اكتب هنا...';
         input.focus();
     },
-    
+
     // إخفاء حقل الإدخال
     hideInputArea() {
         const inputArea = document.getElementById('chatbot-input-area');
         inputArea.style.display = 'none';
     },
-    
+
     // إزالة الخيارات
     removeOptions() {
         const options = document.querySelectorAll('.chat-options');
         options.forEach(opt => opt.remove());
     },
-    
+
     // تنسيق الرسالة
     formatMessage(message) {
         return message
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
     },
-    
+
     // الحصول على اسم الصفحة
     getPageName(page) {
         const names = {
@@ -729,15 +936,15 @@ support@bog.gov.sa
         };
         return names[page] || 'الصفحة المطلوبة';
     },
-    
+
     // الحصول على الوقت الحالي
     getCurrentTime() {
-        return new Date().toLocaleTimeString('ar-SA', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return new Date().toLocaleTimeString('ar-SA', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     },
-    
+
     // التمرير للأسفل
     scrollToBottom() {
         const messagesContainer = document.getElementById('chatbot-messages');
